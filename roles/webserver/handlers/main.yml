@@ -1,0 +1,6 @@
+# handlers file for webserver
+---
+- name: Reiniciar servidor web
+  ansible.builtin.service:
+    name: "{{ webserver_svc }}"
+    state: restarted

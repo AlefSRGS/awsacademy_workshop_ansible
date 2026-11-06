@@ -1,0 +1,31 @@
+galaxy_info:
+  author: Red Hat Academy
+  description: Role de criacao e configuracao de servidor web com template Jinja2 personalizado para o Workshop Red Hat Academy.
+  company: Red Hat Academy / Cesar School
+  license: MIT
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+
+  galaxy_tags:
+    - webserver
+    - apache
+    - httpd
+    - jinja2
+    - redhat
+    - workshop
+
+dependencies: []

@@ -1,0 +1,58 @@
+# tasks file for webserver
+---
+- name: Garantir que as variáveis de pacote e serviço estejam definidas
+  ansible.builtin.set_fact:
+    webserver_pkg: "{{ 'httpd' if ansible_facts['os_family'] == 'RedHat' else 'apache2' }}"
+    webserver_svc: "{{ 'httpd' if ansible_facts['os_family'] == 'RedHat' else 'apache2' }}"
+    webserver_user: "{{ 'apache' if ansible_facts['os_family'] == 'RedHat' else 'www-data' }}"
+    webserver_group: "{{ 'apache' if ansible_facts['os_family'] == 'RedHat' else 'www-data' }}"
+  when: webserver_pkg is not defined or webserver_svc is not defined
+
+- name: Instalar o pacote do servidor web ({{ webserver_pkg }})
+  ansible.builtin.package:
+    name: "{{ webserver_pkg }}"
+    state: present
+
+- name: Garantir que o serviço do servidor web esteja iniciado e habilitado
+  ansible.builtin.service:
+    name: "{{ webserver_svc }}"
+    state: started
+    enabled: true
+
+- name: Garantir que o diretório raiz do servidor web exista
+  ansible.builtin.file:
+    path: "{{ webserver_doc_root }}"
+    state: directory
+    owner: "{{ webserver_user }}"
+    group: "{{ webserver_group }}"
+    mode: '0755'
+
+- name: Implantar a página inicial personalizada via template Jinja2
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ webserver_doc_root }}/{{ webserver_index_file }}"
+    owner: "{{ webserver_user }}"
+    group: "{{ webserver_group }}"
+    mode: '0644'
+  notify: Reiniciar servidor web
+
+- name: Coletar fatos dos serviços para verificar status do firewall
+  ansible.builtin.service_facts:
+  when:
+    - webserver_firewall_configure | bool
+    - ansible_facts['os_family'] == 'RedHat'
+  ignore_errors: true
+
+- name: Liberar porta HTTP no firewalld (se o serviço firewalld estiver ativo)
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    immediate: true
+    state: enabled
+  when:
+    - webserver_firewall_configure | bool
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['services'] is defined
+    - ansible_facts['services']['firewalld.service'] is defined
+    - ansible_facts['services']['firewalld.service'].state == 'running'
+  ignore_errors: true

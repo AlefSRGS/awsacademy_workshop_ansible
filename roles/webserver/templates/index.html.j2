@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ webserver_page_title | default('Workshop Red Hat Academy com Ansible') }}</title>
+  <style>
+    :root {
+      --rh-red: #EE0000;
+      --rh-dark-red: #A30000;
+      --rh-black: #151515;
+      --rh-gray-dark: #212427;
+      --rh-gray-medium: #4D5258;
+      --rh-gray-light: #F0F0F0;
+      --rh-card-bg: #FFFFFF;
+      --rh-text: #151515;
+      --rh-text-muted: #6A6E73;
+      --rh-green: #3E8635;
+      --rh-blue: #0066CC;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Red Hat Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--rh-gray-light);
+      color: var(--rh-text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+      color: #FFFFFF;
+      padding: 2.5rem 1.5rem;
+      border-bottom: 5px solid var(--rh-red);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-red {
+      background-color: var(--rh-red);
+      color: #FFFFFF;
+    }
+
+    .badge-status {
+      background-color: var(--rh-green);
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      display: inline-block;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-top: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #D2D2D2;
+      font-weight: 400;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .intro-banner {
+      background: #FFFFFF;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--rh-blue);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .intro-text strong {
+      color: var(--rh-black);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--rh-card-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #E0E0E0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--rh-red);
+    }
+
+    .card.blue::before { background: var(--rh-blue); }
+    .card.green::before { background: var(--rh-green); }
+    .card.black::before { background: var(--rh-black); }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #F0F0F0;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--rh-text-muted);
+    }
+
+    .card-icon {
+      font-size: 1.3rem;
+    }
+
+    .card-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--rh-black);
+      margin-bottom: 0.5rem;
+      word-break: break-all;
+    }
+
+    .card-details {
+      list-style: none;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .card-details li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed #EAEAEA;
+    }
+
+    .card-details li:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      color: var(--rh-text-muted);
+    }
+
+    .val {
+      font-weight: 600;
+      color: var(--rh-black);
+      text-align: right;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .table-container {
+      background: #FFFFFF;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #E0E0E0;
+      margin-bottom: 2rem;
+    }
+
+    .table-container h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--rh-black);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--rh-gray-light);
+      font-weight: 700;
+      color: var(--rh-gray-medium);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:nth-child(even) {
+      background-color: #FAFAFA;
+    }
+
+    tr:hover {
+      background-color: #F5F5F5;
+    }
+
+    code {
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #F0F0F0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--rh-red);
+    }
+
+    footer {
+      background: var(--rh-black);
+      color: #A0A0A0;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 3rem;
+    }
+
+    footer a {
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-stamp {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #777777;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <div class="badge-bar">
+        <span class="badge badge-red">Red Hat Academy</span>
+        <span class="badge badge-status">Servidor Ativo</span>
+        <span class="badge" style="background:#333; color:#EEE;">Ansible Automation</span>
+      </div>
+      <h1>{{ webserver_page_title | default('Workshop Red Hat Academy com Ansible') }}</h1>
+      <p class="subtitle">Página inicial provisionada e configurada dinamicamente via Ansible Role & Jinja2 Template</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="intro-banner">
+      <div class="intro-text">
+        <strong>Host Gerenciado:</strong> <code>{{ ansible_fqdn | default(ansible_hostname) }}</code> |
+        <strong>Provisionado em:</strong> {{ ansible_date_time.date | default('N/A') }} às {{ ansible_date_time.time | default('N/A') }} ({{ ansible_date_time.tz | default('UTC') }})
+      </div>
+      <div>
+        <span class="badge badge-red">Laboratório Prático</span>
+      </div>
+    </div>
+
+    <!-- CARDS DE INFORMAÇÃO DO SISTEMA -->
+    <div class="grid">
+
+      <!-- CARD 1: ENDEREÇO IP -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Endereço IP Principal</span>
+          <span class="card-icon">🌐</span>
+        </div>
+        <div class="card-value">
+          {{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0] | default('127.0.0.1')) }}
+        </div>
+        <ul class="card-details">
+          <li>
+            <span class="label">Máscara:</span>
+            <span class="val">{{ ansible_default_ipv4.netmask | default('N/A') }}</span>
+          </li>
+          <li>
+            <span class="label">Gateway:</span>
+            <span class="val">{{ ansible_default_ipv4.gateway | default('N/A') }}</span>
+          </li>
+          <li>
+            <span class="label">Interface:</span>
+            <span class="val">{{ ansible_default_ipv4.interface | default('N/A') }}</span>
+          </li>
+          <li>
+            <span class="label">Todos os IPs:</span>
+            <span class="val">{{ ansible_all_ipv4_addresses | default([]) | join(', ') }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CARD 2: SISTEMA OPERACIONAL -->
+      <div class="card blue">
+        <div class="card-header">
+          <span class="card-title">Sistema Operacional</span>
+          <span class="card-icon">🐧</span>
+        </div>
+        <div class="card-value">
+          {{ ansible_distribution }} {{ ansible_distribution_version }}
+        </div>
+        <ul class="card-details">
+          <li>
+            <span class="label">Codinome / Release:</span>
+            <span class="val">{{ ansible_distribution_release | default('N/A') }}</span>
+          </li>
+          <li>
+            <span class="label">Família do SO:</span>
+            <span class="val">{{ ansible_os_family }}</span>
+          </li>
+          <li>
+            <span class="label">Kernel:</span>
+            <span class="val">{{ ansible_kernel }}</span>
+          </li>
+          <li>
+            <span class="label">Arquitetura:</span>
+            <span class="val">{{ ansible_architecture }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CARD 3: CPU -->
+      <div class="card green">
+        <div class="card-header">
+          <span class="card-title">Processamento (CPU)</span>
+          <span class="card-icon">⚡</span>
+        </div>
+        <div class="card-value">
+          {{ ansible_processor_vcpus | default(ansible_processor_count | default('1')) }} vCPU(s)
+        </div>
+        <ul class="card-details">
+          <li>
+            <span class="label">Núcleos (Cores):</span>
+            <span class="val">{{ ansible_processor_cores | default('N/A') }}</span>
+          </li>
+          <li>
+            <span class="label">Sockets:</span>
+            <span class="val">{{ ansible_processor_count | default('1') }}</span>
+          </li>
+          <li>
+            <span class="label">Modelo:</span>
+            <span class="val" title="{{ ansible_processor[2] | default(ansible_processor[1] | default('Processador Virtual')) }}">
+              {{ (ansible_processor[2] | default(ansible_processor[1] | default('Virtual CPU'))) | truncate(24, True, '...') }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CARD 4: MEMÓRIA RAM -->
+      <div class="card black">
+        <div class="card-header">
+          <span class="card-title">Memória RAM</span>
+          <span class="card-icon">🧠</span>
+        </div>
+        <div class="card-value">
+          {{ ansible_memtotal_mb | default(0) }} MB
+        </div>
+        <ul class="card-details">
+          <li>
+            <span class="label">Total em GB:</span>
+            <span class="val">~{{ ((ansible_memtotal_mb | default(0)) / 1024) | round(2) }} GB</span>
+          </li>
+          <li>
+            <span class="label">Memória Livre:</span>
+            <span class="val">{{ ansible_memfree_mb | default('N/A') }} MB</span>
+          </li>
+          <li>
+            <span class="label">Swap Total:</span>
+            <span class="val">{{ ansible_swaptotal_mb | default(0) }} MB</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- TABELA DETALHADA DE FATOS COLETADOS -->
+    <div class="table-container">
+      <h3>📋 Fatos do Ansible Utilizados no Template (Facts Reference)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Variável / Fato Ansible</th>
+            <th>Descrição na Aula</th>
+            <th>Valor Coletado Nesta Máquina</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ansible_default_ipv4.address</code></td>
+            <td>Endereço IPv4 padrão atribuído à interface de rede ativa</td>
+            <td><strong>{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0] | default('N/A')) }}</strong></td>
+          </tr>
+          <tr>
+            <td><code>ansible_distribution</code> + <code>ansible_distribution_version</code></td>
+            <td>Distribuição Linux e respectiva versão instalada</td>
+            <td><strong>{{ ansible_distribution }} {{ ansible_distribution_version }}</strong></td>
+          </tr>
+          <tr>
+            <td><code>ansible_processor_vcpus</code></td>
+            <td>Quantidade total de processadores lógicos (vCPUs) disponíveis</td>
+            <td><strong>{{ ansible_processor_vcpus | default(ansible_processor_count | default('N/A')) }}</strong></td>
+          </tr>
+          <tr>
+            <td><code>ansible_memtotal_mb</code></td>
+            <td>Capacidade total de memória física (RAM) em Megabytes</td>
+            <td><strong>{{ ansible_memtotal_mb | default('N/A') }} MB (~{{ ((ansible_memtotal_mb | default(0)) / 1024) | round(2) }} GB)</strong></td>
+          </tr>
+          <tr>
+            <td><code>ansible_fqdn</code></td>
+            <td>Nome qualificado do domínio do servidor (Fully Qualified Domain Name)</td>
+            <td><strong>{{ ansible_fqdn | default(ansible_hostname) }}</strong></td>
+          </tr>
+          <tr>
+            <td><code>ansible_os_family</code></td>
+            <td>Família do Sistema Operacional (ex: RedHat, Debian)</td>
+            <td><strong>{{ ansible_os_family }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <p><strong>Red Hat Academy &mdash; Cesar School</strong></p>
+    <p>Automação com Red Hat Ansible &bull; Material pedagógico desenvolvido para o workshop</p>
+    <div class="footer-stamp">
+      Gerado automaticamente via Ansible em {{ ansible_date_time.date | default('') }} às {{ ansible_date_time.time | default('') }} {{ ansible_date_time.tz | default('') }}
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+---
+- name: "Provisionar HAProxy - Workshop Red Hat Academy"
+  hosts: haproxy
+  become: true
+  gather_facts: true
+  roles:
+    - role: haproxy

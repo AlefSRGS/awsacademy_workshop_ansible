@@ -1,0 +1,11 @@
+# defaults file for webserver
+---
+webserver_pkg: "{{ 'httpd' if ansible_facts['os_family'] == 'RedHat' else 'apache2' }}"
+webserver_svc: "{{ 'httpd' if ansible_facts['os_family'] == 'RedHat' else 'apache2' }}"
+webserver_doc_root: "/var/www/html"
+webserver_index_file: "index.html"
+webserver_page_title: "Workshop Red Hat Academy com Ansible"
+webserver_port: 80
+webserver_firewall_configure: true
+webserver_user: "{{ 'apache' if ansible_facts['os_family'] == 'RedHat' else 'www-data' }}"
+webserver_group: "{{ 'apache' if ansible_facts['os_family'] == 'RedHat' else 'www-data' }}"

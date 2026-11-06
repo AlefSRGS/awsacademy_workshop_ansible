@@ -1,0 +1,25 @@
+# Gerenciado pelo Ansible - role haproxy
+global
+    log /dev/log local0
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect {{ haproxy_timeout_connect }}
+    timeout client {{ haproxy_timeout_client }}
+    timeout server {{ haproxy_timeout_server }}
+
+frontend http_frontend
+    bind {{ haproxy_bind_address }}:{{ haproxy_port }}
+    default_backend webservers
+
+backend webservers
+    balance {{ haproxy_balance }}
+{% for server in haproxy_backend_servers %}
+    server {{ server.name }} {{ server.address }}:{{ server.port | default(80) }} check
+{% endfor %}

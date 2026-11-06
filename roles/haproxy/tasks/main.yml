@@ -1,0 +1,52 @@
+---
+- name: Validar a lista de servidores de destino
+  ansible.builtin.assert:
+    that:
+      - haproxy_backend_servers | length > 0
+    fail_msg: Defina pelo menos um servidor em haproxy_backend_servers.
+
+- name: Instalar HAProxy
+  ansible.builtin.package:
+    name: "{{ haproxy_package }}"
+    state: present
+
+- name: Garantir que o diretório de configuração exista
+  ansible.builtin.file:
+    path: /etc/haproxy
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configurar HAProxy com validação antes de substituir o arquivo
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /usr/sbin/haproxy -c -f %s
+  notify: Reiniciar HAProxy
+
+- name: Garantir que HAProxy esteja iniciado e habilitado
+  ansible.builtin.service:
+    name: "{{ haproxy_service }}"
+    state: started
+    enabled: true
+
+- name: Coletar estado do firewalld
+  ansible.builtin.service_facts:
+  when:
+    - haproxy_firewall_configure | bool
+    - ansible_facts['os_family'] == 'RedHat'
+
+- name: Liberar porta do HAProxy quando o firewalld estiver ativo
+  ansible.posix.firewalld:
+    port: "{{ haproxy_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  when:
+    - haproxy_firewall_configure | bool
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts.get('services', {}).get('firewalld.service', {}).get('state', '') == 'running'

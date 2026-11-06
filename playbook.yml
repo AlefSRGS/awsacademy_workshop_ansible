@@ -1,0 +1,11 @@
+---
+- name: "Provisionar Servidor Web - Workshop Red Hat Academy"
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: webserver
+
+- name: Provisionar balanceador HAProxy
+  ansible.builtin.import_playbook: playbook_haproxy.yml
