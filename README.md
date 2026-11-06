@@ -1,0 +1,1 @@
+# awsacademy_workshop_ansible
